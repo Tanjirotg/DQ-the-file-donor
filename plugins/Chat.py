@@ -1,10 +1,8 @@
 
 import requests
-from pyrogram import filters, Client
-from pyrogram.types import Message
+from pyrogram import filters, Client as pbot
 from pyrogram.enums import ChatType, ChatAction
-from Barath import barath as pbot
-from Barath.plugins.alive import ping_pong
+
 
 BOT_NAME = "Leena"
 OWNER = "@ikaris0_0"
@@ -20,8 +18,8 @@ fixed_responses = {
 
 CHAT = {}
 
-@pbot.on_message(filters.command("chat", prefixes=".") & filters.me)
-async def toggle_chat(_, message: Message):
+@pbot.on_message(filters.command("chat"))
+async def toggle_chat(_, message):
     try:
         status = message.command[1].lower()
         if status == "on":
@@ -35,29 +33,28 @@ async def toggle_chat(_, message: Message):
     except IndexError:
         await message.reply_text("Invalid command usage. Use .chat on or .chat off.")
 
-@pbot.on_message(filters.text & ~filters.me & filters.reply)
+@pbot.on_message(filters.text & ~filters.bot & filters.reply, group=4)
 async def chatbot(_, message: Message):
     if message.chat.id not in CHAT or not CHAT[message.chat.id]:
         return
     if message.chat.type != ChatType.SUPERGROUP:
         if not message.reply_to_message:
             return
-        elif message.reply_to_message.from_user.id != (await pbot.get_me()).id:
+        elif message.reply_to_message.from_user.id != 123456789: #replace ur bot id
             return
 
     if message.text and message.text[0] in ["/", "!", "?", "."]:
         return
         
     replied_user_id = message.reply_to_message.from_user.id
-    if replied_user_id == 5690711835:
+    if replied_user_id == 123456789: #replace ur bot id
         await pbot.send_chat_action(message.chat.id, ChatAction.TYPING)
         
         response_text = fixed_responses.get(message.text.lower(), None)
         if response_text:
             if "{}" in response_text:
-                server_ping, server_uptime = await ping_pong()
-                response_text = response_text.format(server_ping, server_uptime)
-            await message.reply_text(response_text)
+                response_text = response_text.format('punda', 'im fucked')
+                await message.reply_text(response_text)
         else:
             # If not
             response = requests.get(f"https://apis-tofu.koyeb.app/api/chatbot/{BOT_NAME}/{OWNER}/{message.text}")
